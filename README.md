@@ -10,8 +10,6 @@
 
 想要一起维护和使用可以联系我。
 
-内微信：vocaloidat
-
 外gmail：vocaloid.at@gmail.com
 
 ### 一。使用方法
