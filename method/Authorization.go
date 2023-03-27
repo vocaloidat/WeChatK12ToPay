@@ -4,6 +4,12 @@ import (
 	"K12_P/constant"
 	"K12_P/sign"
 	"K12_P/structWay"
+	"crypto"
+	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/base64"
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -42,4 +48,26 @@ func GetAuthorization(method string, constantApi string) string {
 		"signature=" + signatureValue
 
 	return Authorization
+}
+
+// verifySignature 这个函数接受三个参数：签名字符串，应答签名字符串和平台证书。它返回一个布尔值和一个错误。如果签名验证成功，则返回true，否则返回false，并返回一个错误。
+func verifySignature(signatureString string, responseSignature string, platformCertificate *x509.Certificate) (bool, error) {
+	signatureBytes, err := base64.StdEncoding.DecodeString(signatureString)
+	if err != nil {
+		return false, fmt.Errorf("failed to decode signature string: %v", err)
+	}
+
+	responseSignatureBytes, err := base64.StdEncoding.DecodeString(responseSignature)
+	if err != nil {
+		return false, fmt.Errorf("failed to decode response signature string: %v", err)
+	}
+
+	hashed := sha256.Sum256(signatureBytes)
+
+	err = rsa.VerifyPKCS1v15(platformCertificate.PublicKey.(*rsa.PublicKey), crypto.SHA256, hashed[:], responseSignatureBytes)
+	if err != nil {
+		return false, fmt.Errorf("failed to verify signature: %v", err)
+	}
+
+	return true, nil
 }

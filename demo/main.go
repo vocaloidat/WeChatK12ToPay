@@ -1,24 +1,15 @@
 package main
 
-import (
-	"encoding/json"
-	"fmt"
-)
+import "fmt"
 
 func main() {
-	b1 := `{"out_user_id":"qq123","organization_id":"ww123"}`
-	type User struct {
-		Scene         string `json:"scene"`
-		Web_init_data string `json:"web_init_data"`
+	Wechatpay_Serial := "200"
+	PlatformSerialNo1 := "100"
+	PlatformSerialNo2 := "200"
+
+	if Wechatpay_Serial != PlatformSerialNo1 && Wechatpay_Serial != PlatformSerialNo2 {
+		fmt.Println("解码失败")
+	} else {
+		fmt.Println("解码成功")
 	}
-	u1 := User{
-		Scene:         "WEBSESSION",
-		Web_init_data: b1,
-	}
-	json_str, err := json.Marshal(u1)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(string(json_str))
 }

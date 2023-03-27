@@ -17,10 +17,17 @@ func Get_certificates(c *gin.Context) {
 	url := constant.ApiDomain + constant.APIGetplatformcertificates
 	wm := structWay.GetWeChatDao()
 	Authorization := GetAuthorization(http.MethodGet, constant.APIGetplatformcertificates)
-	body, _ := httpClient_Post(url, http.MethodGet, Authorization, nil)
+	body, code := httpClient_Post(url, http.MethodGet, Authorization, nil, true)
+	if code == 404 {
+		c.JSON(200, gin.H{
+			"message": "获取平台证书列表失败",
+		})
+		return
+	}
 	fmt.Println("response body:", string(body))
 	// 获取证书列表（微信官方平台证书）后 ，需要使用APIv3密钥来解密出来 实例化PayWeChat *PayClient为了后续接口连接
 	sign.InitPayClient(&wm, string(body))
+	// 在这里进行验证
 	c.JSON(200, gin.H{
 		"message": "获取平台证书列表完成",
 	})
@@ -32,7 +39,7 @@ func Offlinefacemch_organizations(c *gin.Context) {
 	url := constant.ApiDomain + constant.APIQueryOrganizationInfoById + organization_id
 	// 组装Authorization内容。
 	Authorization := GetAuthorization(http.MethodGet, constant.APIQueryOrganizationInfoById)
-	body, _ := httpClient_Post(url, http.MethodGet, Authorization, nil)
+	body, _ := httpClient_Post(url, http.MethodGet, Authorization, nil, true)
 	fmt.Println("response body:", string(body))
 	var data interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
@@ -106,7 +113,7 @@ func Getauthinfo(c *gin.Context) {
 	b, _ := c.GetRawData()
 	url := constant.ApiDomain + constant.APIGetauthinfo
 	Authorization := GetAuthorization(http.MethodPost, constant.APIGetauthinfo)
-	body, _ := httpClient_Post(url, http.MethodPost, Authorization, b)
+	body, _ := httpClient_Post(url, http.MethodPost, Authorization, b, true)
 	var data interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
@@ -126,7 +133,7 @@ func OfflinefacemchTerminateContract(c *gin.Context) {
 	newURL = strings.ReplaceAll(newURL, "{user_id}", user_id)
 
 	Authorization := GetAuthorization(http.MethodPost, constant.APIOfflinefacemchTerminateContract)
-	_, code := httpClient_Post(newURL, http.MethodPost, Authorization, nil)
+	_, code := httpClient_Post(newURL, http.MethodPost, Authorization, nil, true)
 	if code != 204 {
 		c.JSON(http.StatusOK, gin.H{
 			"isok": "no",
@@ -177,7 +184,7 @@ func GetOfflinefaceContracts(c *gin.Context) {
 	newURL := strings.ReplaceAll(url, "{contract_id}", contract_id)
 	newURL = strings.ReplaceAll(newURL, "XXXX", appid)
 	Authorization := GetAuthorization(http.MethodGet, constant.APIGetOfflinefaceContracts)
-	body, _ := httpClient_Post(newURL, http.MethodGet, Authorization, nil)
+	body, _ := httpClient_Post(newURL, http.MethodGet, Authorization, nil, true)
 	var data interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
@@ -193,7 +200,7 @@ func OfflinefaceFaceCollections(c *gin.Context) {
 	url := constant.ApiDomain + constant.APIOfflinefaceFaceCollections
 	newURL := strings.ReplaceAll(url, "{collection_id}", collection_id)
 	Authorization := GetAuthorization(http.MethodGet, constant.APIOfflinefaceFaceCollections)
-	body, _ := httpClient_Post(newURL, http.MethodGet, Authorization, nil)
+	body, _ := httpClient_Post(newURL, http.MethodGet, Authorization, nil, true)
 	var data interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
@@ -212,7 +219,7 @@ func OfflinefaceFaceCollections_organization_id(c *gin.Context) {
 	newURL := strings.ReplaceAll(url, "{organization_id}", organization_id)
 	newURL = newURL + "&offset=" + offset + "&limit=" + limit
 	Authorization := GetAuthorization(http.MethodGet, constant.APIOfflinefaceFaceCollections)
-	body, _ := httpClient_Post(newURL, http.MethodGet, Authorization, nil)
+	body, _ := httpClient_Post(newURL, http.MethodGet, Authorization, nil, true)
 	var data interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
@@ -234,7 +241,7 @@ func OfflinefaceTransactionsOutTradeNo(c *gin.Context) {
 	newURL = strings.ReplaceAll(newURL, "{sp_mchid}", sp_mchid)
 	newURL = strings.ReplaceAll(newURL, "{sub_mchid}", sub_mchid)
 	newURL = strings.ReplaceAll(newURL, "{business_product_id}", business_product_id)
-	body, _ := httpClient_Post(newURL, http.MethodGet, Authorization, nil)
+	body, _ := httpClient_Post(newURL, http.MethodGet, Authorization, nil, true)
 	var data interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
@@ -249,7 +256,7 @@ func OfflinefaceRepaymentUrl(c *gin.Context) {
 	b, _ := c.GetRawData()
 	url := constant.ApiDomain + constant.APIOfflinefaceRepaymentUrl
 	Authorization := GetAuthorization(http.MethodPost, constant.APIOfflinefaceRepaymentUrl)
-	body, _ := httpClient_Post(url, http.MethodPost, Authorization, b)
+	body, _ := httpClient_Post(url, http.MethodPost, Authorization, b, true)
 	var data interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
